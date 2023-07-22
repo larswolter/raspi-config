@@ -10,15 +10,17 @@ sudo curl -fsSL https://get.docker.com | sh
 sudo apt install -y python3 python3-pip
 sudo pip3 install docker-compose
 ```
-# Setup external USB
+## Setup external USB
 
 configure usb device to automount. 
-# list UUIDs
-# create mount point
-# Add `UUID=xxx /mnt/data ext4 defaults,noatime 0 0` to fstab
+* list UUIDs
+* create mount point
+* Add `UUID=xxx /mnt/data ext4 defaults,noatime 0 0` to fstab
 
 ```sh
 sudo ls -l /dev/disk/by-uuid/
 sudo mkdir /mnt/data
 sudo nano /etc/fstab
 ```
+## use docker-compose to start services
+ The compose file starts unifi, pihole and jellyfin.
