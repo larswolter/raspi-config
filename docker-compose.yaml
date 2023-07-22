@@ -1,0 +1,61 @@
+version: '3.5'
+services:
+  unifi:
+    image: jacobalberty/unifi
+    container_name: unifi
+    cpus: 2.0
+    volumes:
+      - /mnt/data/unifi:/unifi
+    ports:
+      - 8080:8080
+      - 8443:8443
+      - 3478:3478/udp
+      - 10001:10001/udp
+    environment:
+      - TZ=Europe/Berlin
+      - PUID=1000
+      - PGID=1000
+      - MEM_LIMIT=1536
+      - MEM_STARTUP=2048      
+    restart: 'unless-stopped'
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    cpus: 2.0
+    ports:
+      - 8096:8096
+      - 8920:8920
+      - 1900:1900/udp
+      - 7359:7359/udp
+    volumes:
+      - /mnt/data/jellyfin/config:/config
+      - /mnt/data/jellyfin/cache:/cache
+      - /mnt/data/Filme:/media/Filme
+      - /mnt/data/KinderHoerspiele:/media/KinderHoerspiele
+      - /mnt/data/Serien:/media/Serien
+      - /mnt/data/Wissen:/media/Wissen
+      - /mnt/data/Musik:/media/Musik
+    restart: 'unless-stopped'
+    # Optional - may be necessary for docker healthcheck to pass if running in host network mode
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp" # Only required if you are using Pi-hole as your DHCP server
+      - "80:80/tcp"
+    environment:
+      TZ: 'Europe/Berlin'
+      # WEBPASSWORD: 'set a secure password here or it will be random'
+    # Volumes store your data between container upgrades
+    volumes:
+      - '/mnt/data/pihole/etc-pihole:/etc/pihole'
+      - '/mnt/data/pihole/etc-dnsmasq.d:/etc/dnsmasq.d'
+    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    cap_add:
+      - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
+    restart: unless-stopped
